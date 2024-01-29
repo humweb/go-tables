@@ -33,5 +33,6 @@ release:
   name_template: "{{.Version}}"
   prerelease: auto
   mode: append
+  disable: true
 changelog:
   skip: true
