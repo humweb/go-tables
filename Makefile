@@ -56,7 +56,7 @@ lint: ## golangci-lint
 .PHONY: test
 test: ## go test
 	$(call print-target)
-	go test -race -covermode=atomic -coverprofile=coverage.out -coverpkg=./... ./...
+	go test -race -covermode=atomic -coverprofile=coverage.out -coverpkg=./tables/... ./tables/...
 	go tool cover -html=coverage.out -o coverage.html
 
 .PHONY: diff

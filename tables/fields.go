@@ -1,0 +1,72 @@
+package tables
+
+import (
+	"github.com/humweb/go-tables/utils"
+)
+
+// A Field represents a table field
+type Field struct {
+	Component  string `json:"component"`
+	Attribute  string `json:"attribute"`
+	Name       string `json:"name"`
+	Sortable   bool   `json:"sortable"`
+	Searchable bool   `json:"searchable"`
+	Visibility bool   `json:"visibility"`
+	Visible    bool   `json:"visible"`
+}
+
+type FieldOption func(*Field)
+
+// NewField creates a new table field
+func NewField(name string, opts ...FieldOption) *Field {
+	s := &Field{
+		Name:       name,
+		Attribute:  utils.Slug(name),
+		Component:  "text",
+		Sortable:   false,
+		Searchable: false,
+		Visibility: false,
+		Visible:    true,
+	}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
+}
+
+//
+// Filter Options
+//
+
+// SetVisibility sets the fields visibility flag to show or hide a column
+func (f *Field) SetVisibility(flag bool) {
+	f.Visible = flag
+}
+
+// WithAttribute is a Field option to set the database field
+func WithAttribute(name string) FieldOption {
+	return func(s *Field) {
+		s.Attribute = name
+	}
+}
+
+// WithSortable is a Field option to allow the field to be sorted
+func WithSortable() FieldOption {
+	return func(s *Field) {
+		s.Sortable = true
+	}
+}
+
+// WithSearchable is a Field option to allow the field to be searched
+func WithSearchable() FieldOption {
+	return func(s *Field) {
+		s.Searchable = true
+	}
+}
+
+// WithVisibility is a Field option to allow the field's visibility to be toggled
+func WithVisibility() FieldOption {
+	return func(s *Field) {
+		s.Visibility = true
+	}
+}
