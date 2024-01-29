@@ -14,7 +14,8 @@
 
 ## Description
 
-Companion backend for vue-inertia-tables
+Companion backend for [inertia-vue-tables](https://humweb.github.io/inertia-vue-table/guide/getting-started.html)
+
 
 ## Contributing
 
