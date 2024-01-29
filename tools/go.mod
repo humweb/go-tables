@@ -1,4 +1,4 @@
-module github.com/golang-templates/seed/build
+module github.com/humweb/go-tables/build
 
 go 1.21
 
