@@ -163,6 +163,7 @@ func (r *AbstractResource) applyFilters(filters map[string]string, q *gorm.DB) {
 
 // applySearch applies search criteria to the database query
 func (r *AbstractResource) applySearch(resource ITable, q *gorm.DB) {
+
 	for field, value := range r.TableRequest.Search {
 		if field == "global" {
 			resource.WithGlobalSearch(q, value)
