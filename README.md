@@ -1,4 +1,4 @@
-# Go Inertia Vue Table backend package
+# Go Tables backend for Inertia Vue Table
 
 [![GitHub Release](https://img.shields.io/github/v/release/humweb/go-tables)](https://github.com/humweb/go-tables/releases)
 [![Go Reference](https://pkg.go.dev/badge/github.com/humweb/go-tables.svg)](https://pkg.go.dev/github.com/humweb/go-tables)
@@ -16,6 +16,20 @@
 
 Companion backend for [inertia-vue-tables](https://humweb.github.io/inertia-vue-table/guide/getting-started.html)
 
+**Features**
+* Custom filters
+* Field Search
+* Global Search
+* Column Sorting
+* Length Aware Pagination
+* Record limit per page
+
+## Preview
+<img src=".pages/preview.png">
+
+<br>
+
+---
 
 ## Example Resource
 
