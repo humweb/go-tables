@@ -9,7 +9,7 @@ import (
 
 func TestApplyQuery(t *testing.T) {
 	is := assert.New(t)
-	sqlDB, db, mock := testutils.DbMock(t)
+	sqlDB, db, mock := testutils.DBMock(t)
 	defer sqlDB.Close()
 
 	f := &Filter{
@@ -37,7 +37,7 @@ func TestApplyQuery(t *testing.T) {
 
 func TestApplyQueryNumeric(t *testing.T) {
 	is := assert.New(t)
-	sqlDB, db, mock := testutils.DbMock(t)
+	sqlDB, db, mock := testutils.DBMock(t)
 	defer sqlDB.Close()
 
 	f := &Filter{

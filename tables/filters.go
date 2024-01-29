@@ -1,9 +1,10 @@
 package tables
 
 import (
+	"strconv"
+
 	"github.com/humweb/go-tables/utils"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 // Filter defines filters for adding query clauses to our query
@@ -15,6 +16,7 @@ type Filter struct {
 	Value     string          `json:"value"`
 }
 
+// FilterOptions defines filter options
 type FilterOptions struct {
 	Label string `json:"label"`
 	Value any    `json:"value"`
@@ -22,7 +24,6 @@ type FilterOptions struct {
 
 // ApplyQuery adds search criteria to the database query
 func (f *Filter) ApplyQuery(db *gorm.DB) {
-
 	if v, err := strconv.Atoi(f.Value); err == nil {
 		db.Where(f.Field+" = ?", v)
 	} else {
@@ -30,12 +31,11 @@ func (f *Filter) ApplyQuery(db *gorm.DB) {
 	}
 }
 
-// FilterOption is an optional function type to set filter attributes
+// FilterOpt is an optional function type to set filter attributes
 type FilterOpt func(*Filter)
 
 // NewFilter creates a new filter
 func NewFilter(name string, opts ...FilterOpt) *Filter {
-
 	s := &Filter{
 		Label:     name,
 		Field:     utils.Slug(name),

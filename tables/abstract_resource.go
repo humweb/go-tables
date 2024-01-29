@@ -1,17 +1,18 @@
 package tables
 
 import (
-	"github.com/humweb/go-tables/utils"
-	"gorm.io/gorm"
 	"math"
 	"net/http"
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/humweb/go-tables/utils"
+	"gorm.io/gorm"
 )
 
 type AbstractResource struct {
-	Db              *gorm.DB
+	DB              *gorm.DB
 	Request         *http.Request
 	Table           string
 	Fields          []*Field
@@ -22,11 +23,9 @@ type AbstractResource struct {
 }
 
 func (r *AbstractResource) ToResponse(paged *Pagination) map[string]interface{} {
-
 	r.FlagVisibility()
 
 	return map[string]interface{}{
-
 		"records": paged.Rows,
 		"tableProps": map[string]interface{}{
 			"sort":    utils.DefaultString(r.Request.URL.Query().Get("sort"), "id"),
@@ -55,7 +54,7 @@ func (r *AbstractResource) collectFieldSearches() map[string]*Search {
 
 	// If global search enabled, we should always show it
 	if r.HasGlobalSearch {
-		val, ok = r.TableRequest.Search["global"]
+		val = r.TableRequest.Search["global"]
 		searches["global"] = &Search{
 			Label:   "Search..",
 			Field:   "global",
@@ -92,8 +91,8 @@ func (r *AbstractResource) FlagVisibility() {
 	}
 }
 
+// ApplySearch applies searchc criteria to query
 func (r *AbstractResource) ApplySearch(db *gorm.DB, field, value string) {
-
 	if v, err := strconv.Atoi(value); err == nil {
 		db.Where(field+" = ?", v)
 	} else {
@@ -105,7 +104,6 @@ func (r *AbstractResource) ApplySearch(db *gorm.DB, field, value string) {
 // It applies filters and search criteria and paginates
 // Pagination uses a "Length aware" approach
 func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, error) {
-
 	r.TableRequest = &TableRequest{}
 
 	var totalRows int64
@@ -121,7 +119,7 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 	}
 
 	// -- Start Query
-	q := r.Db.Table(r.Table)
+	q := r.DB.Table(r.Table)
 
 	// Apply filters to query
 	r.applySearch(resource, q)
@@ -178,7 +176,6 @@ func (r *AbstractResource) applySearch(resource ITable, q *gorm.DB) {
 func (r *AbstractResource) getSelectFields() string {
 	ary := make([]string, len(r.Fields))
 	for i, f := range r.Fields {
-
 		ary[i] = r.Table + "." + f.Attribute
 	}
 	return strings.Join(ary, ",")

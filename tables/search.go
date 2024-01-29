@@ -1,8 +1,9 @@
 package tables
 
 import (
-	"gorm.io/gorm"
 	"strconv"
+
+	"gorm.io/gorm"
 )
 
 type Search struct {
@@ -13,7 +14,6 @@ type Search struct {
 }
 
 func (f *Search) ApplySearch(db *gorm.DB) {
-
 	if v, err := strconv.Atoi(f.Value); err == nil {
 		db.Where(f.Field+" = ?", v)
 	} else {

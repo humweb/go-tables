@@ -25,7 +25,6 @@ func DefaultSort(val string, def string) string {
 func DefaultString(val string, def string) string {
 	if val == "" {
 		return def
-	} else {
-		return val
 	}
+	return val
 }

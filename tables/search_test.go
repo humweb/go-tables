@@ -22,7 +22,7 @@ type SearchTestSuite struct {
 // All methods that begin with "Test" are run as tests within a
 // suite.
 func (suite *SearchTestSuite) TestDefaultRequest() {
-	sqlDB, db, mock := testutils.DbMock(suite.T())
+	sqlDB, db, mock := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 
 	users := sqlmock.

@@ -23,7 +23,7 @@ type ResourceTestSuite struct {
 // All methods that begin with "Test" are run as tests within a
 // suite.
 func (suite *ResourceTestSuite) TestGetTablet() {
-	sqlDB, db, _ := testutils.DbMock(suite.T())
+	sqlDB, db, _ := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users", nil)
 	res := NewUserResource(db, request)
@@ -32,7 +32,7 @@ func (suite *ResourceTestSuite) TestGetTablet() {
 }
 
 func (suite *ResourceTestSuite) TestDefaultRequest() {
-	sqlDB, db, mock := testutils.DbMock(suite.T())
+	sqlDB, db, mock := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users", nil)
 	res := NewUserResource(db, request)
@@ -68,7 +68,7 @@ func (suite *ResourceTestSuite) TestDefaultRequest() {
 }
 
 func (suite *ResourceTestSuite) TestFilters() {
-	sqlDB, db, mock := testutils.DbMock(suite.T())
+	sqlDB, db, mock := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30&search[global]=foo", nil)
 	res := NewUserResource(db, request)
@@ -102,7 +102,7 @@ func (suite *ResourceTestSuite) TestFilters() {
 }
 
 func (suite *ResourceTestSuite) TestGlobalIntFilter() {
-	sqlDB, db, mock := testutils.DbMock(suite.T())
+	sqlDB, db, mock := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30&search[global]=1", nil)
 	res := NewUserResource(db, request)
@@ -136,7 +136,7 @@ func (suite *ResourceTestSuite) TestGlobalIntFilter() {
 }
 
 func (suite *ResourceTestSuite) TestApplySearch() {
-	sqlDB, db, mock := testutils.DbMock(suite.T())
+	sqlDB, db, mock := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30&search[last_name]=bar", nil)
 	res := NewUserResource(db, request)
@@ -170,7 +170,7 @@ func (suite *ResourceTestSuite) TestApplySearch() {
 }
 
 func (suite *ResourceTestSuite) TestApplyIntSearch() {
-	sqlDB, db, mock := testutils.DbMock(suite.T())
+	sqlDB, db, mock := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30&search[id]=1", nil)
 	res := NewUserResource(db, request)
@@ -191,7 +191,7 @@ func (suite *ResourceTestSuite) TestApplyIntSearch() {
 }
 
 func (suite *ResourceTestSuite) TestFilterApply() {
-	sqlDB, db, mock := testutils.DbMock(suite.T())
+	sqlDB, db, mock := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30&filters[id]=1", nil)
 	res := NewUserResource(db, request)
@@ -225,7 +225,7 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 }
 
 func (suite *ResourceTestSuite) TestFFlagVisibility() {
-	sqlDB, db, _ := testutils.DbMock(suite.T())
+	sqlDB, db, _ := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30&hidden=first_name", nil)
 	res := NewUserResource(db, request)
