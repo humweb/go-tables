@@ -1,6 +1,5 @@
 # Go Repository Template
 
-[![Keep a Changelog](https://img.shields.io/badge/changelog-Keep%20a%20Changelog-%23E05735)](CHANGELOG.md)
 [![GitHub Release](https://img.shields.io/github/v/release/humweb/go-tables)](https://github.com/humweb/go-tables/releases)
 [![Go Reference](https://pkg.go.dev/badge/github.com/humweb/go-tables.svg)](https://pkg.go.dev/github.com/humweb/go-tables)
 [![go.mod](https://img.shields.io/github/go-mod/go-version/humweb/go-tables)](go.mod)
