@@ -1,4 +1,4 @@
-# Go Repository Template
+# Go Inertia Vue Table backend package
 
 [![GitHub Release](https://img.shields.io/github/v/release/humweb/go-tables)](https://github.com/humweb/go-tables/releases)
 [![Go Reference](https://pkg.go.dev/badge/github.com/humweb/go-tables.svg)](https://pkg.go.dev/github.com/humweb/go-tables)
