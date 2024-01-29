@@ -29,7 +29,6 @@ Companion backend for [inertia-vue-tables](https://humweb.github.io/inertia-vue-
 
 <br>
 
----
 
 ## Example Resource
 
