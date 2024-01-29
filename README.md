@@ -85,13 +85,13 @@ func (u *UserResource) GetFilters() []*Filter {
 
 func (u *UserResource) ApplyFilter(db *gorm.DB) {
 
-	//if clientId := chi.URLParam(u.Request, "client"); clientId != "" {
-	//	db.Where("client_id = ?", clientId)
-	//}
-	//
-	//if siteId := chi.URLParam(u.Request, "site"); siteId != "" {
-	//	db.Joins("inner join sites_users ON sites_users.user_id = users.id").Where("sites_users.site_id = ?", siteId)
-	//}
+	if clientId := chi.URLParam(u.Request, "client"); clientId != "" {
+		db.Where("client_id = ?", clientId)
+	}
+	
+	if siteId := chi.URLParam(u.Request, "site"); siteId != "" {
+		db.Joins("inner join sites_users ON sites_users.user_id = users.id").Where("sites_users.site_id = ?", siteId)
+	}
 }
 
 func (u *UserResource) WithGlobalSearch(db *gorm.DB, val string) {
