@@ -127,7 +127,7 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 
 	resource.ApplyFilter(q)
 
-	// Get records count
+	// -- Get records count
 	q.Count(&totalRows)
 	p.TotalRows = totalRows
 
@@ -143,7 +143,6 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 
 	// Get results
 	err := q.Debug().Find(&res).Error
-
 	if err == nil {
 		p.Rows = res
 	}

@@ -64,8 +64,6 @@ func (u *UserResource) WithGlobalSearch(db *gorm.DB, val string) {
 		db.Where("id = ?", v)
 	} else {
 		val = "%" + val + "%"
-		db.Where(
-			db.Where(db.Where("first_name ilike ?", val).Or("last_name ilike ?", val).Or("email ilike ?", val)),
-		)
+		db.Where("(first_name ilike ? OR last_name ilike ? OR email ilike ?)", val, val, val)
 	}
 }

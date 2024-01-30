@@ -9,16 +9,9 @@ import (
 	"testing"
 )
 
-// Define the suite, and absorb the built-in basic suite
-// functionality from testify - including assertion methods.
 type ResourceTestSuite struct {
 	suite.Suite
 }
-
-//func (suite *ResourceTestSuite) SetupSuite() {
-//	// Setup config and ENV variables
-//
-//}
 
 // All methods that begin with "Test" are run as tests within a
 // suite.
@@ -46,8 +39,6 @@ func (suite *ResourceTestSuite) TestDefaultRequest() {
 
 	expectedSQL := "^SELECT (.+) FROM \"users\" ORDER BY id ASC LIMIT 25$"
 	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
-
-	//var user []map[string]interface{}
 
 	resp, _ := res.Paginate(res)
 
