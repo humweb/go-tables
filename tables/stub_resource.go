@@ -39,6 +39,18 @@ func (u *UserResource) GetFields() []*Field {
 		NewField("Email", WithSortable()),
 		NewField("Username", WithSortable()),
 		NewField("Last login", WithSortable()),
+		NewActionField("Filters", []ActionItems{
+			{
+				Label:  "Users",
+				Link:   "/clients/{id}/users",
+				Params: []string{"id"},
+			},
+			{
+				Label:  "Sites",
+				Link:   "/clients/{id}/Sites",
+				Params: []string{"id"},
+			},
+		}),
 	}
 }
 

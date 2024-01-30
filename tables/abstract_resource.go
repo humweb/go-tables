@@ -180,5 +180,5 @@ func (r *AbstractResource) getSelectFields() string {
 			ary[i] = r.Table + "." + f.Attribute
 		}
 	}
-	return strings.Join(ary, ",")
+	return strings.Trim(strings.Join(ary, ","), ",")
 }
