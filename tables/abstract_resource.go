@@ -176,7 +176,9 @@ func (r *AbstractResource) applySearch(resource ITable, q *gorm.DB) {
 func (r *AbstractResource) getSelectFields() string {
 	ary := make([]string, len(r.Fields))
 	for i, f := range r.Fields {
-		ary[i] = r.Table + "." + f.Attribute
+		if f.Component != "action-field" {
+			ary[i] = r.Table + "." + f.Attribute
+		}
 	}
 	return strings.Join(ary, ",")
 }

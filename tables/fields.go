@@ -6,13 +6,14 @@ import (
 
 // A Field represents a table field
 type Field struct {
-	Component  string `json:"component"`
-	Attribute  string `json:"attribute"`
-	Name       string `json:"name"`
-	Sortable   bool   `json:"sortable"`
-	Searchable bool   `json:"searchable"`
-	Visibility bool   `json:"visibility"`
-	Visible    bool   `json:"visible"`
+	Component  string        `json:"component"`
+	Attribute  string        `json:"attribute"`
+	Name       string        `json:"name"`
+	Sortable   bool          `json:"sortable"`
+	Searchable bool          `json:"searchable"`
+	Visibility bool          `json:"visibility"`
+	Visible    bool          `json:"visible"`
+	Actions    []ActionItems `json:"actions"`
 }
 
 type FieldOption func(*Field)
@@ -27,9 +28,23 @@ func NewField(name string, opts ...FieldOption) *Field {
 		Searchable: false,
 		Visibility: false,
 		Visible:    true,
+		Actions:    nil,
 	}
 	for _, opt := range opts {
 		opt(s)
+	}
+	return s
+}
+func NewActionField(name string, actions []ActionItems) *Field {
+	s := &Field{
+		Name:       name,
+		Attribute:  utils.Slug(name),
+		Component:  "action-field",
+		Sortable:   false,
+		Searchable: false,
+		Visibility: false,
+		Visible:    true,
+		Actions:    actions,
 	}
 	return s
 }
