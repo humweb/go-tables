@@ -1,7 +1,7 @@
 package tables
 
 type ActionItems struct {
-	Label  string
-	Link   string
-	Params []string
+	Label  string   `json:"label"`
+	Link   string   `json:"link"`
+	Params []string `json:"params"`
 }
