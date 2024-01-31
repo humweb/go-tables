@@ -21,7 +21,7 @@ func (suite *ResourceTestSuite) TestGetTablet() {
 	request, _ := http.NewRequest(http.MethodGet, "/users", nil)
 	res := NewUserResource(db, request)
 
-	suite.Equal("users", res.GetModel())
+	suite.Equal("users", res.Model.TableName())
 }
 
 func (suite *ResourceTestSuite) TestDefaultRequest() {

@@ -14,7 +14,7 @@ import (
 type AbstractResource struct {
 	DB              *gorm.DB
 	Request         *http.Request
-	Table           string
+	Model           Model
 	Fields          []*Field
 	Filters         []*Filter
 	Searches        []*Search
@@ -120,7 +120,7 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 	}
 
 	// -- Start Query
-	q := r.DB.Table(r.Table)
+	q := r.DB.Table(r.Model.TableName())
 
 	// Apply filters to query
 	r.applySearch(resource, q)
@@ -188,7 +188,7 @@ func (r *AbstractResource) getSelectFields() string {
 	ary := make([]string, len(r.Fields))
 	for i, f := range r.Fields {
 		if f.Component != "action-field" {
-			ary[i] = r.Table + "." + f.Attribute
+			ary[i] = r.Model.TableName() + "." + f.Attribute
 		}
 	}
 	return strings.Trim(strings.Join(ary, ","), ",")

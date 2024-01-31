@@ -5,7 +5,7 @@ import (
 )
 
 type ITable interface {
-	GetModel() string
+	GetModel() Model
 	GetFields() []*Field
 	GetFilters() []*Filter
 	WithGlobalSearch(db *gorm.DB, val string)

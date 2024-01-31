@@ -9,6 +9,9 @@ import (
 	"github.com/humweb/go-tables/utils"
 )
 
+type Model interface {
+	TableName() string
+}
 type Pagination struct {
 	Limit      int         `json:"limit,omitempty"`
 	Page       int         `json:"page,omitempty"`

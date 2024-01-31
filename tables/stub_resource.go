@@ -3,9 +3,37 @@ package tables
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"gorm.io/gorm"
 )
+
+type Client struct {
+	ID          uint   `gorm:"primaryKey" json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (Client) TableName() string {
+	return "clients"
+}
+
+type UserPrivate struct {
+	ID        uint           `gorm:"primaryKey" json:"id"`
+	ClientId  int            `json:"client_id"`
+	Client    *Client        `gorm:"foreignkey:ClientId" json:"client,omitempty"`
+	FirstName string         `json:"first_name"`
+	LastName  string         `json:"last_name"`
+	Username  string         `json:"username"`
+	Email     string         `json:"email"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+}
+
+func (UserPrivate) TableName() string {
+	return "users"
+}
 
 type UserResource struct {
 	AbstractResource
@@ -14,7 +42,7 @@ type UserResource struct {
 func NewUserResource(db *gorm.DB, req *http.Request) *UserResource {
 	r := &UserResource{
 		AbstractResource{
-			Table:           "users",
+			Model:           UserPrivate{},
 			DB:              db,
 			Request:         req,
 			HasGlobalSearch: true,
@@ -27,8 +55,8 @@ func NewUserResource(db *gorm.DB, req *http.Request) *UserResource {
 	return r
 }
 
-func (u *UserResource) GetModel() string {
-	return "users"
+func (u *UserResource) GetModel() Model {
+	return u.Model
 }
 
 func (u *UserResource) GetFields() []*Field {
