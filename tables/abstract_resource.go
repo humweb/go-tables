@@ -140,8 +140,7 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 	p.TotalPages = totalPages
 
 	var res []map[string]interface{}
-	q.Select(r.getSelectFields()).
-		Offset(p.GetOffset()).
+	q.Offset(p.GetOffset()).
 		Limit(p.GetLimit()).
 		Order(p.GetSort())
 
@@ -183,13 +182,13 @@ func (r *AbstractResource) eagerLoad(q *gorm.DB) {
 	}
 }
 
-// getSelectFields returns a select statement with only the fields added to the resource
-func (r *AbstractResource) getSelectFields() string {
-	ary := make([]string, len(r.Fields))
-	for i, f := range r.Fields {
-		if f.Component != "action-field" {
-			ary[i] = r.Model.TableName() + "." + f.Attribute
-		}
-	}
-	return strings.Trim(strings.Join(ary, ","), ",")
-}
+//// getSelectFields returns a select statement with only the fields added to the resource
+//func (r *AbstractResource) getSelectFields() string {
+//	ary := make([]string, len(r.Fields))
+//	for i, f := range r.Fields {
+//		if f.Component != "action-field" {
+//			ary[i] = r.Model.TableName() + "." + f.Attribute
+//		}
+//	}
+//	return strings.Trim(strings.Join(ary, ","), ",")
+//}
