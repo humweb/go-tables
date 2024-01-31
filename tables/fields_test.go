@@ -27,14 +27,35 @@ func TestFieldOptions(t *testing.T) {
 		WithAttribute("uuid"),
 		WithSearchable(),
 		WithVisibility(),
+		WithMeta(map[string]interface{}{
+			"dateFormat": "Y-m-d",
+		}),
 	)
 
 	is.Equal("ID", field.Name)
 	is.Equal("uuid", field.Attribute)
 	is.Equal("text", field.Component)
+	is.Equal("Y-m-d", field.Meta["dateFormat"])
 	is.True(field.Sortable)
 	is.True(field.Searchable)
 	is.True(field.Visibility)
+}
+func TestActionField(t *testing.T) {
+	is := assert.New(t)
+
+	field := NewActionField("Filters", []*ActionItems{
+		{
+			Label: "Users",
+			Link:  "/clients/{id}/users",
+		},
+		{
+			Label: "Sites",
+			Link:  "/clients/{id}/Sites",
+		},
+	})
+
+	is.Equal("Users", field.Actions[0].Label)
+	is.Equal("/clients/{id}/users", field.Actions[0].Link)
 }
 
 func TestUserResource(t *testing.T) {

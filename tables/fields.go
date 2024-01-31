@@ -6,14 +6,15 @@ import (
 
 // A Field represents a table field
 type Field struct {
-	Component  string        `json:"component"`
-	Attribute  string        `json:"attribute"`
-	Name       string        `json:"name"`
-	Sortable   bool          `json:"sortable"`
-	Searchable bool          `json:"searchable"`
-	Visibility bool          `json:"visibility"`
-	Visible    bool          `json:"visible"`
-	Actions    []ActionItems `json:"actions"`
+	Component  string                 `json:"component"`
+	Attribute  string                 `json:"attribute"`
+	Name       string                 `json:"name"`
+	Sortable   bool                   `json:"sortable"`
+	Searchable bool                   `json:"searchable"`
+	Visibility bool                   `json:"visibility"`
+	Visible    bool                   `json:"visible"`
+	Actions    []*ActionItems         `json:"actions,omitempty"`
+	Meta       map[string]interface{} `json:"meta,omitempty"`
 }
 
 type FieldOption func(*Field)
@@ -35,7 +36,7 @@ func NewField(name string, opts ...FieldOption) *Field {
 	}
 	return s
 }
-func NewActionField(name string, actions []ActionItems) *Field {
+func NewActionField(name string, actions []*ActionItems) *Field {
 	s := &Field{
 		Name:       name,
 		Attribute:  utils.Slug(name),
@@ -83,5 +84,12 @@ func WithSearchable() FieldOption {
 func WithVisibility() FieldOption {
 	return func(s *Field) {
 		s.Visibility = true
+	}
+}
+
+// WithMeta add extra meta information for special field types
+func WithMeta(data map[string]interface{}) FieldOption {
+	return func(s *Field) {
+		s.Meta = data
 	}
 }

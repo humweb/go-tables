@@ -39,7 +39,7 @@ func (u *UserResource) GetFields() []*Field {
 		NewField("Email", WithSortable()),
 		NewField("Username", WithSortable()),
 		NewField("Last login", WithSortable()),
-		NewActionField("Filters", []ActionItems{
+		NewActionField("Filters", []*ActionItems{
 			{
 				Label:  "Users",
 				Link:   "/clients/{id}/users",
