@@ -1,6 +1,7 @@
 package tables
 
 import (
+	"gorm.io/gorm"
 	"net/url"
 	"strconv"
 	"strings"
@@ -81,4 +82,9 @@ func (r *TableRequest) SetFilterAndSearch(query *url.URL) {
 	}
 	r.Filters = filters
 	r.Search = search
+}
+
+type Preload struct {
+	Name  string
+	Extra func(*gorm.DB) *gorm.DB
 }

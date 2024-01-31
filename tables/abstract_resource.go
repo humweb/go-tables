@@ -18,6 +18,7 @@ type AbstractResource struct {
 	Fields          []*Field
 	Filters         []*Filter
 	Searches        []*Search
+	Preloads        []*Preload
 	TableRequest    *TableRequest
 	HasGlobalSearch bool
 }
@@ -131,6 +132,9 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 	q.Count(&totalRows)
 	p.TotalRows = totalRows
 
+	// Eager load relationships
+	r.eagerLoad(q)
+
 	// Start pagination
 	totalPages := int(math.Ceil(float64(totalRows) / float64(p.Limit)))
 	p.TotalPages = totalPages
@@ -169,6 +173,13 @@ func (r *AbstractResource) applySearch(resource ITable, q *gorm.DB) {
 		} else {
 			r.ApplySearch(q, field, value)
 		}
+	}
+}
+
+// applySearch applies search criteria to the database query
+func (r *AbstractResource) eagerLoad(q *gorm.DB) {
+	for _, rel := range r.Preloads {
+		q.Preload(rel.Name, rel.Extra)
 	}
 }
 
