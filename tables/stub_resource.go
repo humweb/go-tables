@@ -19,16 +19,15 @@ func (Client) TableName() string {
 }
 
 type UserPrivate struct {
-	ID        uint           `gorm:"primaryKey" json:"id"`
-	ClientId  int            `json:"client_id"`
-	Client    *Client        `gorm:"foreignkey:ClientId" json:"client,omitempty"`
-	FirstName string         `json:"first_name"`
-	LastName  string         `json:"last_name"`
-	Username  string         `json:"username"`
-	Email     string         `json:"email"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	ClientId  int       `json:"client_id"`
+	Client    *Client   `gorm:"foreignkey:ClientId" json:"client,omitempty"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (UserPrivate) TableName() string {

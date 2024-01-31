@@ -120,7 +120,7 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 	}
 
 	// -- Start Query
-	q := r.DB.Table(r.Model.TableName())
+	q := r.DB.Model(r.Model)
 
 	// Apply filters to query
 	r.applySearch(resource, q)

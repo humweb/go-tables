@@ -43,7 +43,7 @@ func (suite *ResourceTestSuite) TestDefaultRequest() {
 	resp, _ := res.Paginate(res)
 
 	records := resp["records"].([]map[string]interface{})
-	suite.Equal(int64(1), records[0]["id"])
+	suite.Equal(uint(1), records[0]["id"])
 	suite.Equal("foo", records[0]["first_name"])
 	suite.Equal("bar", records[0]["last_name"])
 	suite.Equal("baz", records[0]["username"])
@@ -77,7 +77,7 @@ func (suite *ResourceTestSuite) TestFilters() {
 	resp, _ := res.Paginate(res)
 
 	records := resp["records"].([]map[string]interface{})
-	suite.Equal(int64(1), records[0]["id"])
+	suite.Equal(uint(1), records[0]["id"])
 	suite.Equal("foo", records[0]["first_name"])
 	suite.Equal("bar", records[0]["last_name"])
 	suite.Equal("baz", records[0]["username"])
@@ -111,7 +111,7 @@ func (suite *ResourceTestSuite) TestGlobalIntFilter() {
 	resp, _ := res.Paginate(res)
 
 	records := resp["records"].([]map[string]interface{})
-	suite.Equal(int64(1), records[0]["id"])
+	suite.Equal(uint(1), records[0]["id"])
 	suite.Equal("foo", records[0]["first_name"])
 	suite.Equal("bar", records[0]["last_name"])
 	suite.Equal("baz", records[0]["username"])
@@ -145,7 +145,7 @@ func (suite *ResourceTestSuite) TestApplySearch() {
 	resp, _ := res.Paginate(res)
 
 	records := resp["records"].([]map[string]interface{})
-	suite.Equal(int64(1), records[0]["id"])
+	suite.Equal(uint(1), records[0]["id"])
 	suite.Equal("foo", records[0]["first_name"])
 	suite.Equal("bar", records[0]["last_name"])
 	suite.Equal("baz", records[0]["username"])
@@ -200,7 +200,7 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 	resp, _ := res.Paginate(res)
 
 	records := resp["records"].([]map[string]interface{})
-	suite.Equal(int64(1), records[0]["id"])
+	suite.Equal(uint(1), records[0]["id"])
 	suite.Equal("foo", records[0]["first_name"])
 	suite.Equal("bar", records[0]["last_name"])
 	suite.Equal("baz", records[0]["username"])
