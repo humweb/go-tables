@@ -3,7 +3,6 @@ package tables
 import (
 	"math"
 	"net/http"
-	"reflect"
 	"slices"
 	"strconv"
 	"strings"
@@ -140,8 +139,7 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 	totalPages := int(math.Ceil(float64(totalRows) / float64(p.Limit)))
 	p.TotalPages = totalPages
 
-	elemType := reflect.TypeOf(r.Model)
-	res := reflect.MakeSlice(reflect.SliceOf(elemType), 0, p.GetLimit())
+	var res []map[string]interface{}
 
 	q.Offset(p.GetOffset()).
 		Limit(p.GetLimit()).
