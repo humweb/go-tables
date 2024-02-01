@@ -148,7 +148,7 @@ func (r *AbstractResource) Paginate(resource ITable, model *Model) (map[string]i
 	// Get results
 	err := q.Debug().Find(&model).Error
 	if err == nil {
-		p.Rows = res
+		p.Rows = model
 	}
 
 	return r.ToResponse(p), err
