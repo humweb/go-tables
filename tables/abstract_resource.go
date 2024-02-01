@@ -104,7 +104,7 @@ func (r *AbstractResource) ApplySearch(db *gorm.DB, field, value string) {
 // Paginate this is the main function for our resource
 // It applies filters and search criteria and paginates
 // Pagination uses a "Length aware" approach
-func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, error) {
+func (r *AbstractResource) Paginate(resource ITable, model *Model) (map[string]interface{}, error) {
 	r.TableRequest = &TableRequest{}
 
 	var totalRows int64
@@ -139,14 +139,14 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 	totalPages := int(math.Ceil(float64(totalRows) / float64(p.Limit)))
 	p.TotalPages = totalPages
 
-	var res []map[string]interface{}
+	res := r.Model
 
 	q.Offset(p.GetOffset()).
 		Limit(p.GetLimit()).
 		Order(p.GetSort())
 
 	// Get results
-	err := q.Debug().Find(&res).Error
+	err := q.Debug().Find(&model).Error
 	if err == nil {
 		p.Rows = res
 	}
