@@ -25,7 +25,7 @@ Companion backend for [inertia-vue-tables](https://humweb.github.io/inertia-vue-
 * Record limit per page
 
 ## Preview
-<img src=".pages/preview.png">
+<img src=".github/img/preview.png">
 
 <br>
 
@@ -46,64 +46,65 @@ type UserResource struct {
 }
 
 func NewUserResource(db *gorm.DB, req *http.Request) *UserResource {
-	r := &UserResource{
-		AbstractResource{
-			Table:           "users",
-			Db:              db,
-			Request:         req,
-			HasGlobalSearch: true,
-		},
-	}
+    r := &UserResource{
+            AbstractResource{
+            Db:              db,
+            Request:         req,
+            HasGlobalSearch: true,
+        },
+    }
 
-	r.Fields = r.GetFields()
-	r.Filters = r.GetFilters()
-
-	return r
+    r.Fields = r.GetFields()
+    r.Filters = r.GetFilters()
+    
+    return r
 }
 
 func (u *UserResource) GetModel() string {
-	return "users"
+    return "users"
 }
 
 func (u *UserResource) GetFields() []*Field {
-	return []*Field{
-		NewField("ID", WithSortable()),
-		NewField("First name", WithSortable(), WithVisibility()),
-		NewField("Last name", WithSortable(), WithSearchable()),
-		NewField("Email", WithSortable()),
-		NewField("Username", WithSortable()),
-		NewField("Last login", WithSortable()),
-	}
+    return []*Field{
+        NewField("ID", WithSortable()),
+        NewField("First name", WithSortable(), WithVisibility()),
+        NewField("Last name", WithSortable(), WithSearchable()),
+        NewField("Email", WithSortable()),
+        NewField("Username", WithSortable()),
+        NewField("Last login", WithSortable()),
+    }
 }
 
 func (u *UserResource) GetFilters() []*Filter {
-	return []*Filter{
-		NewFilter("ID"),
-		NewFilter("Client ID"),
-	}
+    return []*Filter{
+        NewFilter("ID"),
+        NewFilter("Client ID"),
+    }
 }
 
 func (u *UserResource) ApplyFilter(db *gorm.DB) {
 
-	if clientId := chi.URLParam(u.Request, "client"); clientId != "" {
-		db.Where("client_id = ?", clientId)
-	}
-	
-	if siteId := chi.URLParam(u.Request, "site"); siteId != "" {
-		db.Joins("inner join sites_users ON sites_users.user_id = users.id").Where("sites_users.site_id = ?", siteId)
-	}
+    if clientId := chi.URLParam(u.Request, "client"); clientId != "" {
+        db.Where("client_id = ?", clientId)
+    }
+    
+    if siteId := chi.URLParam(u.Request, "site"); siteId != "" {
+        db.Joins("inner join sites_users ON sites_users.user_id = users.id").Where("sites_users.site_id = ?", siteId)
+    }
 }
 
 func (u *UserResource) WithGlobalSearch(db *gorm.DB, val string) {
 
-	if v, err := strconv.Atoi(val); err == nil {
-		db.Where("id = ?", v)
-	} else {
-		val = "%" + val + "%"
-		db.Where(
-			db.Where(db.Where("first_name ilike ?", val).Or("last_name ilike ?", val).Or("email ilike ?", val)),
-		)
-	}
+    if v, err := strconv.Atoi(val); err == nil {
+        db.Where("id = ?", v)
+    } else {
+        val = "%" + val + "%"
+        db.Where(
+            db.Where(db.Where("first_name ilike ?", val).
+                Or("last_name ilike ?", val).
+                Or("email ilike ?", val)),
+        )
+    }
 }
 
 ```
@@ -112,11 +113,22 @@ func (u *UserResource) WithGlobalSearch(db *gorm.DB, val string) {
 ```go
 func (h UsersHandler) HandleGetUsers(w http.ResponseWriter, r *http.Request) {
 
-	resource := resources.NewUserResource(h.App.Db, r)
+    resource := resources.NewUserResource(h.App.Db, r)
 	
-	response, _ := resource.Paginate(resource)
+    var clients []models.Client
 
-	_ = h.App.Inertia.Render(w, r, "Users", response)
+	// Preload relationships
+    resource.Preloads = []*tables.Preload{{
+        Name: "Owner",
+        Extra: func(db *gorm.DB) *gorm.DB {
+            return db.Select("id", "email")
+        }},
+    }
+	
+    response, _ := resource.Paginate(resource, clients)
+
+
+    _ = h.App.Inertia.Render(w, r, "Users", response)
 }
 
 ```
