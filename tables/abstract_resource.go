@@ -146,9 +146,9 @@ func (r *AbstractResource) Paginate(resource ITable, model interface{}) (map[str
 		Order(p.GetSort())
 
 	// Get results
-	err := q.Debug().Find(&model).Error
+	err := q.Debug().Find(model).Error
 	if err == nil {
-		p.Rows = &model
+		p.Rows = model
 	}
 
 	return r.ToResponse(p), err
