@@ -41,7 +41,6 @@ type UserResource struct {
 func NewUserResource(db *gorm.DB, req *http.Request) *UserResource {
 	r := &UserResource{
 		AbstractResource{
-			Model:           UserPrivate{},
 			DB:              db,
 			Request:         req,
 			HasGlobalSearch: true,
@@ -52,10 +51,6 @@ func NewUserResource(db *gorm.DB, req *http.Request) *UserResource {
 	r.Filters = r.GetFilters()
 
 	return r
-}
-
-func (u *UserResource) GetModel() Model {
-	return u.Model
 }
 
 func (u *UserResource) GetFields() []*Field {

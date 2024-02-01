@@ -14,7 +14,6 @@ import (
 type AbstractResource struct {
 	DB              *gorm.DB
 	Request         *http.Request
-	Model           string
 	Fields          []*Field
 	Filters         []*Filter
 	Searches        []*Search
