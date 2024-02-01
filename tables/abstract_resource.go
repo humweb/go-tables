@@ -176,7 +176,11 @@ func (r *AbstractResource) applySearch(resource ITable, q *gorm.DB) {
 // applySearch applies search criteria to the database query
 func (r *AbstractResource) eagerLoad(q *gorm.DB) {
 	for _, rel := range r.Preloads {
-		q.Preload(rel.Name)
+		if rel.Extra == nil {
+			q.Preload(rel.Name)
+		} else {
+			q.Preload(rel.Name, rel.Extra)
+		}
 	}
 }
 
