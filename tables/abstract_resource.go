@@ -14,7 +14,6 @@ import (
 type AbstractResource struct {
 	DB              *gorm.DB
 	Request         *http.Request
-	Table           string
 	Fields          []*Field
 	Filters         []*Filter
 	Searches        []*Search
@@ -104,7 +103,7 @@ func (r *AbstractResource) ApplySearch(db *gorm.DB, field, value string) {
 // Paginate this is the main function for our resource
 // It applies filters and search criteria and paginates
 // Pagination uses a "Length aware" approach
-func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, error) {
+func (r *AbstractResource) Paginate(resource ITable, model any) (map[string]interface{}, error) {
 	r.TableRequest = &TableRequest{}
 
 	var totalRows int64
@@ -120,7 +119,7 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 	}
 
 	// -- Start Query
-	q := r.DB.Table(r.Table)
+	q := r.DB.Model(model)
 
 	// Apply filters to query
 	r.applySearch(resource, q)
@@ -139,16 +138,14 @@ func (r *AbstractResource) Paginate(resource ITable) (map[string]interface{}, er
 	totalPages := int(math.Ceil(float64(totalRows) / float64(p.Limit)))
 	p.TotalPages = totalPages
 
-	var res []map[string]interface{}
-	q.Select(r.getSelectFields()).
-		Offset(p.GetOffset()).
+	q.Offset(p.GetOffset()).
 		Limit(p.GetLimit()).
 		Order(p.GetSort())
 
 	// Get results
-	err := q.Debug().Find(&res).Error
+	err := q.Debug().Find(&model).Error
 	if err == nil {
-		p.Rows = res
+		p.Rows = model
 	}
 
 	return r.ToResponse(p), err
@@ -179,17 +176,17 @@ func (r *AbstractResource) applySearch(resource ITable, q *gorm.DB) {
 // applySearch applies search criteria to the database query
 func (r *AbstractResource) eagerLoad(q *gorm.DB) {
 	for _, rel := range r.Preloads {
-		q.Preload(rel.Name, rel.Extra)
+		q.Preload(rel.Name)
 	}
 }
 
-// getSelectFields returns a select statement with only the fields added to the resource
-func (r *AbstractResource) getSelectFields() string {
-	ary := make([]string, len(r.Fields))
-	for i, f := range r.Fields {
-		if f.Component != "action-field" {
-			ary[i] = r.Table + "." + f.Attribute
-		}
-	}
-	return strings.Trim(strings.Join(ary, ","), ",")
-}
+//// getSelectFields returns a select statement with only the fields added to the resource
+//func (r *AbstractResource) getSelectFields() string {
+//	ary := make([]string, len(r.Fields))
+//	for i, f := range r.Fields {
+//		if f.Component != "action-field" {
+//			ary[i] = r.Model.TableName() + "." + f.Attribute
+//		}
+//	}
+//	return strings.Trim(strings.Join(ary, ","), ",")
+//}
