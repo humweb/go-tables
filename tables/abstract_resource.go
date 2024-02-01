@@ -139,7 +139,7 @@ func (r *AbstractResource) Paginate(resource ITable, model *Model) (map[string]i
 	totalPages := int(math.Ceil(float64(totalRows) / float64(p.Limit)))
 	p.TotalPages = totalPages
 
-	res := r.Model
+	//res := r.Model
 
 	q.Offset(p.GetOffset()).
 		Limit(p.GetLimit()).
