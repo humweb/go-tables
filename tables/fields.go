@@ -66,6 +66,13 @@ func WithAttribute(name string) FieldOption {
 	}
 }
 
+// WithFieldComponent allows you to override the default component type (text)
+func WithFieldComponent(name string) FieldOption {
+	return func(s *Field) {
+		s.Component = name
+	}
+}
+
 // WithSortable is a Field option to allow the field to be sorted
 func WithSortable() FieldOption {
 	return func(s *Field) {

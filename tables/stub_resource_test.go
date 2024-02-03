@@ -5,6 +5,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/humweb/go-tables/testutils"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 	"net/http"
 	"testing"
 )
@@ -62,6 +63,99 @@ func (suite *ResourceTestSuite) TestFilters() {
 
 	expectedSQL := "^SELECT (.+) FROM \"users\" WHERE \\(first_name ilike (.+) OR last_name ilike (.+) OR email ilike (.+)\\) ORDER BY id ASC LIMIT 30$"
 	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+
+	var aryUsers []UserPrivate
+	resp, _ := res.Paginate(res, aryUsers)
+
+	records := resp["records"].([]UserPrivate)
+	suite.Equal(uint(1), records[0].ID)
+	suite.Equal("foo", records[0].FirstName)
+	suite.Equal("bar", records[0].LastName)
+	suite.Equal("baz", records[0].Username)
+
+	pagination := resp["pagination"].(map[string]interface{})
+
+	suite.Equal(30, pagination["perPage"])
+	suite.Equal(1, pagination["page"])
+	suite.Equal(1, pagination["total_pages"])
+	suite.Equal(int64(1), pagination["record_count"])
+	suite.Nil(mock.ExpectationsWereMet())
+}
+
+func (suite *ResourceTestSuite) TestPreloads() {
+	sqlDB, db, mock := testutils.DBMock(suite.T())
+	defer sqlDB.Close()
+	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30", nil)
+	res := NewUserResource(db, request)
+
+	res.Preloads = []*Preload{
+		{
+			Name: "Client",
+		},
+	}
+	client := sqlmock.
+		NewRows([]string{"id", "title", "description"}).
+		AddRow(1, "cli", "desc")
+	users := sqlmock.
+		NewRows([]string{"id", "client_id", "first_name", "last_name", "username", "password"}).
+		AddRow(1, 1, "foo", "bar", "baz", "passwd")
+
+	expectedCountSQL := "^SELECT (.+) FROM \"users\"$"
+	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+
+	expectedSQL := "^SELECT (.+) FROM \"users\" ORDER BY id ASC LIMIT 30$"
+	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+
+	expectedClientSQL := "^SELECT (.+) FROM \"clients\" WHERE \"clients\".\"id\" = (.+)$"
+	mock.ExpectQuery(expectedClientSQL).WillReturnRows(client)
+
+	var aryUsers []UserPrivate
+	resp, _ := res.Paginate(res, aryUsers)
+
+	records := resp["records"].([]UserPrivate)
+	suite.Equal(uint(1), records[0].ID)
+	suite.Equal("foo", records[0].FirstName)
+	suite.Equal("bar", records[0].LastName)
+	suite.Equal("baz", records[0].Username)
+
+	pagination := resp["pagination"].(map[string]interface{})
+
+	suite.Equal(30, pagination["perPage"])
+	suite.Equal(1, pagination["page"])
+	suite.Equal(1, pagination["total_pages"])
+	suite.Equal(int64(1), pagination["record_count"])
+	suite.Nil(mock.ExpectationsWereMet())
+}
+
+func (suite *ResourceTestSuite) TestPreloadsWithCondition() {
+	sqlDB, db, mock := testutils.DBMock(suite.T())
+	defer sqlDB.Close()
+	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30", nil)
+	res := NewUserResource(db, request)
+
+	res.Preloads = []*Preload{
+		{
+			Name: "Client",
+			Extra: func(db *gorm.DB) *gorm.DB {
+				return db.Select("id, name")
+			},
+		},
+	}
+	client := sqlmock.
+		NewRows([]string{"id", "title", "description"}).
+		AddRow(1, "cli", "desc")
+	users := sqlmock.
+		NewRows([]string{"id", "client_id", "first_name", "last_name", "username", "password"}).
+		AddRow(1, 1, "foo", "bar", "baz", "passwd")
+
+	expectedCountSQL := "^SELECT (.+) FROM \"users\"$"
+	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+
+	expectedSQL := "^SELECT (.+) FROM \"users\" ORDER BY id ASC LIMIT 30$"
+	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+
+	expectedClientSQL := "^SELECT (.+) FROM \"clients\" WHERE \"clients\".\"id\" = (.+)$"
+	mock.ExpectQuery(expectedClientSQL).WillReturnRows(client)
 
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)

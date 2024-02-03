@@ -24,6 +24,7 @@ func TestFieldOptions(t *testing.T) {
 	field := NewField(
 		"ID",
 		WithSortable(),
+		WithFieldComponent("date"),
 		WithAttribute("uuid"),
 		WithSearchable(),
 		WithVisibility(),
@@ -34,7 +35,7 @@ func TestFieldOptions(t *testing.T) {
 
 	is.Equal("ID", field.Name)
 	is.Equal("uuid", field.Attribute)
-	is.Equal("text", field.Component)
+	is.Equal("date", field.Component)
 	is.Equal("Y-m-d", field.Meta["dateFormat"])
 	is.True(field.Sortable)
 	is.True(field.Searchable)
