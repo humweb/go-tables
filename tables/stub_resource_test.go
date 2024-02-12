@@ -300,7 +300,7 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 	suite.Nil(mock.ExpectationsWereMet())
 }
 
-func (suite *ResourceTestSuite) TestFFlagVisibility() {
+func (suite *ResourceTestSuite) TestFlagVisibility() {
 	sqlDB, db, _ := testutils.DBMock(suite.T())
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30&hidden=first_name", nil)
