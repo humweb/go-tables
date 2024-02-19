@@ -138,12 +138,13 @@ func (r *AbstractResource) Paginate(resource ITable, model any) (map[string]inte
 	totalPages := int(math.Ceil(float64(totalRows) / float64(p.Limit)))
 	p.TotalPages = totalPages
 
+	// add pagination offset and order
 	q.Offset(p.GetOffset()).
 		Limit(p.GetLimit()).
 		Order(p.GetSort())
 
 	// Get results
-	err := q.Debug().Find(&model).Error
+	err := q.Find(&model).Error
 	if err == nil {
 		p.Rows = model
 	}
