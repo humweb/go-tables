@@ -16,11 +16,14 @@
 
 Companion backend for [inertia-vue-tables](https://humweb.github.io/inertia-vue-table/guide/getting-started.html)
 
+Example App https://github.com/humweb/inertia-go-vue-example
+
 **Features**
 * Custom filters
 * Field Search
 * Global Search
 * Column Sorting
+* Eager load relationships
 * Length Aware Pagination
 * Record limit per page
 
