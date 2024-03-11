@@ -6,8 +6,8 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/gosimple/slug v1.14.0
 	github.com/stretchr/testify v1.8.4
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.6
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/gorm v1.25.7-0.20240204074919-46816ad31dde
 )
 
 require (
