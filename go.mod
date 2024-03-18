@@ -7,7 +7,7 @@ require (
 	github.com/gosimple/slug v1.14.0
 	github.com/stretchr/testify v1.8.4
 	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.6
+	gorm.io/gorm v1.25.8
 )
 
 require (
