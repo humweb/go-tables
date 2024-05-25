@@ -272,6 +272,8 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30&filters[id]=1", nil)
 	res := NewUserResource(db, request)
 
+	res.DefaultPerPage = 100
+
 	users := sqlmock.
 		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, "foo", "bar", "baz", "passwd")
@@ -286,6 +288,7 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 	resp, _ := res.Paginate(res, aryUsers)
 
 	records := resp["records"].([]UserPrivate)
+
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
@@ -294,6 +297,43 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 	pagination := resp["pagination"].(map[string]interface{})
 
 	suite.Equal(30, pagination["perPage"])
+	suite.Equal(1, pagination["page"])
+	suite.Equal(1, pagination["total_pages"])
+	suite.Equal(int64(1), pagination["record_count"])
+	suite.Nil(mock.ExpectationsWereMet())
+}
+
+func (suite *ResourceTestSuite) TestDefaultPerPage() {
+	sqlDB, db, mock := testutils.DBMock(suite.T())
+	defer sqlDB.Close()
+	request, _ := http.NewRequest(http.MethodGet, "/users?filters[id]=1", nil)
+	res := NewUserResource(db, request)
+
+	res.DefaultPerPage = 100
+
+	users := sqlmock.
+		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
+		AddRow(1, "foo", "bar", "baz", "passwd")
+
+	expectedCountSQL := "^SELECT (.+) FROM \"users\" WHERE id = (.+)$"
+	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+
+	expectedSQL := "^SELECT (.+) FROM \"users\" WHERE id = (.+) ORDER BY id ASC LIMIT 100$"
+	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+
+	var aryUsers []UserPrivate
+	resp, _ := res.Paginate(res, aryUsers)
+
+	records := resp["records"].([]UserPrivate)
+
+	suite.Equal(uint(1), records[0].ID)
+	suite.Equal("foo", records[0].FirstName)
+	suite.Equal("bar", records[0].LastName)
+	suite.Equal("baz", records[0].Username)
+
+	pagination := resp["pagination"].(map[string]interface{})
+
+	suite.Equal(100, pagination["perPage"])
 	suite.Equal(1, pagination["page"])
 	suite.Equal(1, pagination["total_pages"])
 	suite.Equal(int64(1), pagination["record_count"])
