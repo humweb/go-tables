@@ -20,6 +20,7 @@ type AbstractResource struct {
 	Preloads        []*Preload
 	TableRequest    *TableRequest
 	HasGlobalSearch bool
+	DefaultPerPage  int
 }
 
 func (r *AbstractResource) ToResponse(paged *Pagination) map[string]interface{} {
@@ -110,6 +111,10 @@ func (r *AbstractResource) Paginate(resource ITable, model any) (map[string]inte
 
 	// Parse filters and search from request
 	r.TableRequest.Fill(r.Request.URL)
+
+	if r.TableRequest.PerPage == 25 && r.DefaultPerPage != 0 {
+		r.TableRequest.PerPage = r.DefaultPerPage
+	}
 
 	// Init pagination
 	p := &Pagination{
