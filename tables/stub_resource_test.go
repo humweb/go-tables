@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 	"net/http"
+	"regexp"
 	"testing"
 )
 
@@ -24,11 +25,13 @@ func (suite *ResourceTestSuite) TestDefaultRequest() {
 		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, "foo", "bar", "baz", "passwd")
 
-	expectedCountSQL := "^SELECT (.+) FROM \"users\"$"
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users"`)
 	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-	expectedSQL := "^SELECT (.+) FROM \"users\" ORDER BY id ASC LIMIT 25$"
-	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" ORDER BY id ASC LIMIT $1`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs(25).
+		WillReturnRows(users)
 
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
@@ -58,11 +61,15 @@ func (suite *ResourceTestSuite) TestFilters() {
 		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, "foo", "bar", "baz", "passwd")
 
-	expectedCountSQL := "^SELECT (.+) FROM \"users\" WHERE \\(first_name ilike (.+) OR last_name ilike (.+) OR email ilike (.+)\\)$"
-	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users" WHERE (first_name ilike $1 OR last_name ilike $2 OR email ilike $3)`)
+	mock.ExpectQuery(expectedCountSQL).
+		WithArgs("%foo%", "%foo%", "%foo%").
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-	expectedSQL := "^SELECT (.+) FROM \"users\" WHERE \\(first_name ilike (.+) OR last_name ilike (.+) OR email ilike (.+)\\) ORDER BY id ASC LIMIT 30$"
-	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" WHERE (first_name ilike $1 OR last_name ilike $2 OR email ilike $3) ORDER BY id ASC LIMIT $4`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs("%foo%", "%foo%", "%foo%", 30).
+		WillReturnRows(users)
 
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
@@ -100,14 +107,19 @@ func (suite *ResourceTestSuite) TestPreloads() {
 		NewRows([]string{"id", "client_id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, 1, "foo", "bar", "baz", "passwd")
 
-	expectedCountSQL := "^SELECT (.+) FROM \"users\"$"
-	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users"`)
+	mock.ExpectQuery(expectedCountSQL).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-	expectedSQL := "^SELECT (.+) FROM \"users\" ORDER BY id ASC LIMIT 30$"
-	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" ORDER BY id ASC LIMIT $1`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs(30).
+		WillReturnRows(users)
 
-	expectedClientSQL := "^SELECT (.+) FROM \"clients\" WHERE \"clients\".\"id\" = (.+)$"
-	mock.ExpectQuery(expectedClientSQL).WillReturnRows(client)
+	expectedClientSQL := regexp.QuoteMeta(`SELECT * FROM "clients" WHERE "clients"."id" = $1`)
+	mock.ExpectQuery(expectedClientSQL).
+		WithArgs(1).
+		WillReturnRows(client)
 
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
@@ -148,14 +160,19 @@ func (suite *ResourceTestSuite) TestPreloadsWithCondition() {
 		NewRows([]string{"id", "client_id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, 1, "foo", "bar", "baz", "passwd")
 
-	expectedCountSQL := "^SELECT (.+) FROM \"users\"$"
-	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users"`)
+	mock.ExpectQuery(expectedCountSQL).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-	expectedSQL := "^SELECT (.+) FROM \"users\" ORDER BY id ASC LIMIT 30$"
-	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" ORDER BY id ASC LIMIT $1`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs(30).
+		WillReturnRows(users)
 
-	expectedClientSQL := "^SELECT (.+) FROM \"clients\" WHERE \"clients\".\"id\" = (.+)$"
-	mock.ExpectQuery(expectedClientSQL).WillReturnRows(client)
+	expectedClientSQL := regexp.QuoteMeta(`SELECT id, name FROM "clients" WHERE "clients"."id" = $1`)
+	mock.ExpectQuery(expectedClientSQL).
+		WithArgs(1).
+		WillReturnRows(client)
 
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
@@ -185,11 +202,15 @@ func (suite *ResourceTestSuite) TestGlobalIntFilter() {
 		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, "foo", "bar", "baz", "passwd")
 
-	expectedCountSQL := "^SELECT (.+) FROM \"users\" WHERE id = (.+)$"
-	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users" WHERE id = $1`)
+	mock.ExpectQuery(expectedCountSQL).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-	expectedSQL := "^SELECT (.+) FROM \"users\" WHERE id = (.+) ORDER BY id ASC LIMIT 30$"
-	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1 ORDER BY id ASC LIMIT $2`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs(1, 30).
+		WillReturnRows(users)
 
 	var aryUsers []UserPrivate
 
@@ -220,11 +241,15 @@ func (suite *ResourceTestSuite) TestApplySearch() {
 		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, "foo", "bar", "baz", "passwd")
 
-	expectedCountSQL := "^SELECT (.+) FROM \"users\" WHERE last_name ILIKE (.+)$"
-	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users" WHERE last_name ILIKE $1`)
+	mock.ExpectQuery(expectedCountSQL).
+		WithArgs("%bar%").
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-	expectedSQL := "^SELECT (.+) FROM \"users\" WHERE last_name ILIKE (.+) ORDER BY id ASC LIMIT 30$"
-	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" WHERE last_name ILIKE $1 ORDER BY id ASC LIMIT $2`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs("%bar%", 30).
+		WillReturnRows(users)
 
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
@@ -254,11 +279,15 @@ func (suite *ResourceTestSuite) TestApplyIntSearch() {
 		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, "foo", "bar", "baz", "passwd")
 
-	expectedCountSQL := "^SELECT (.+) FROM \"users\" WHERE id = (.+)$"
-	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users" WHERE id = $1`)
+	mock.ExpectQuery(expectedCountSQL).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-	expectedSQL := "^SELECT (.+) FROM \"users\" WHERE id = (.+) ORDER BY id ASC LIMIT 30$"
-	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1 ORDER BY id ASC LIMIT $2`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs(1, 30).
+		WillReturnRows(users)
 
 	var aryUsers []UserPrivate
 	_, _ = res.Paginate(res, aryUsers)
@@ -272,20 +301,27 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30&filters[id]=1", nil)
 	res := NewUserResource(db, request)
 
+	res.DefaultPerPage = 100
+
 	users := sqlmock.
 		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, "foo", "bar", "baz", "passwd")
 
-	expectedCountSQL := "^SELECT (.+) FROM \"users\" WHERE id = (.+)$"
-	mock.ExpectQuery(expectedCountSQL).WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users" WHERE id = $1`)
+	mock.ExpectQuery(expectedCountSQL).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-	expectedSQL := "^SELECT (.+) FROM \"users\" WHERE id = (.+) ORDER BY id ASC LIMIT 30$"
-	mock.ExpectQuery(expectedSQL).WillReturnRows(users)
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1 ORDER BY id ASC LIMIT $2`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs(1, 30).
+		WillReturnRows(users)
 
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
 	records := resp["records"].([]UserPrivate)
+
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
@@ -294,6 +330,47 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 	pagination := resp["pagination"].(map[string]interface{})
 
 	suite.Equal(30, pagination["perPage"])
+	suite.Equal(1, pagination["page"])
+	suite.Equal(1, pagination["total_pages"])
+	suite.Equal(int64(1), pagination["record_count"])
+	suite.Nil(mock.ExpectationsWereMet())
+}
+
+func (suite *ResourceTestSuite) TestDefaultPerPage() {
+	sqlDB, db, mock := testutils.DBMock(suite.T())
+	defer sqlDB.Close()
+	request, _ := http.NewRequest(http.MethodGet, "/users?filters[id]=1", nil)
+	res := NewUserResource(db, request)
+
+	res.DefaultPerPage = 100
+
+	users := sqlmock.
+		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
+		AddRow(1, "foo", "bar", "baz", "passwd")
+
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users" WHERE id = $1`)
+	mock.ExpectQuery(expectedCountSQL).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1 ORDER BY id ASC LIMIT $2`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs(1, 100).
+		WillReturnRows(users)
+
+	var aryUsers []UserPrivate
+	resp, _ := res.Paginate(res, aryUsers)
+
+	records := resp["records"].([]UserPrivate)
+
+	suite.Equal(uint(1), records[0].ID)
+	suite.Equal("foo", records[0].FirstName)
+	suite.Equal("bar", records[0].LastName)
+	suite.Equal("baz", records[0].Username)
+
+	pagination := resp["pagination"].(map[string]interface{})
+
+	suite.Equal(100, pagination["perPage"])
 	suite.Equal(1, pagination["page"])
 	suite.Equal(1, pagination["total_pages"])
 	suite.Equal(int64(1), pagination["record_count"])
