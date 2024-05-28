@@ -361,12 +361,54 @@ func (suite *ResourceTestSuite) TestDefaultPerPage() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp.Records.([]UserPrivate)
+	records := resp.Records.([]map[string]any)
 
-	suite.Equal(uint(1), records[0].ID)
-	suite.Equal("foo", records[0].FirstName)
-	suite.Equal("bar", records[0].LastName)
-	suite.Equal("baz", records[0].Username)
+	suite.Equal(uint(1), records[0]["id"])
+	suite.Equal("foo", records[0]["first_name"])
+	suite.Equal("bar", records[0]["last_name"])
+	suite.Equal("baz", records[0]["username"])
+
+	pagination := resp.Pagination
+
+	suite.Equal(100, pagination.Limit)
+	suite.Equal(1, pagination.Page)
+	suite.Equal(1, pagination.TotalPages)
+	suite.Equal(int64(1), pagination.TotalRows)
+	suite.Nil(mock.ExpectationsWereMet())
+}
+
+func (suite *ResourceTestSuite) TestArraySort() {
+	sqlDB, db, mock := testutils.DBMock(suite.T())
+	defer sqlDB.Close()
+	request, _ := http.NewRequest(http.MethodGet, "/users?filters[id]=1&sort=first_name", nil)
+	res := NewUserResource(db, request)
+
+	res.DefaultPerPage = 100
+
+	users := sqlmock.
+		NewRows([]string{"id", "first_name", "last_name", "username", "password"}).
+		AddRow(1, "foo", "bar", "baz", "passwd").
+		AddRow(1, "afoo", "abar", "abaz", "passwd")
+
+	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users" WHERE id = $1`)
+	mock.ExpectQuery(expectedCountSQL).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
+
+	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1 ORDER BY id DESC LIMIT $2`)
+	mock.ExpectQuery(expectedSQL).
+		WithArgs(1, 100).
+		WillReturnRows(users)
+
+	var aryUsers []UserPrivate
+	resp, _ := res.Paginate(res, aryUsers)
+
+	records := resp.Records.([]map[string]any)
+
+	suite.Equal(uint(1), records[0]["id"])
+	suite.Equal("afoo", records[0]["first_name"])
+	suite.Equal("abar", records[0]["last_name"])
+	suite.Equal("abaz", records[0]["username"])
 
 	pagination := resp.Pagination
 

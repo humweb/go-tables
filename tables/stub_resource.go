@@ -56,7 +56,7 @@ func NewUserResource(db *gorm.DB, req *http.Request) *UserResource {
 func (u *UserResource) GetFields() []*Field {
 	return []*Field{
 		NewField("ID", WithSortable()),
-		NewField("First name", WithSortable(), WithVisibility()),
+		NewField("First name", WithSortable(), WithVisibility(), WithArraySort()),
 		NewField("Last name", WithSortable(), WithSearchable()),
 		NewField("Email", WithSortable()),
 		NewField("Username", WithSortable()),

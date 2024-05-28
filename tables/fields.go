@@ -6,15 +6,16 @@ import (
 
 // A Field represents a table field
 type Field struct {
-	Component  string                 `json:"component"`
-	Attribute  string                 `json:"attribute"`
-	Name       string                 `json:"name"`
-	Sortable   bool                   `json:"sortable"`
-	Searchable bool                   `json:"searchable"`
-	Visibility bool                   `json:"visibility"`
-	Visible    bool                   `json:"visible"`
-	Actions    []*ActionItems         `json:"actions,omitempty"`
-	Meta       map[string]interface{} `json:"meta,omitempty"`
+	Component    string                 `json:"component"`
+	Attribute    string                 `json:"attribute"`
+	Name         string                 `json:"name"`
+	Sortable     bool                   `json:"sortable"`
+	Searchable   bool                   `json:"searchable"`
+	Visibility   bool                   `json:"visibility"`
+	Visible      bool                   `json:"visible"`
+	HasArraySort bool                   `json:"has_array_sort"`
+	Actions      []*ActionItems         `json:"actions,omitempty"`
+	Meta         map[string]interface{} `json:"meta,omitempty"`
 }
 
 type FieldOption func(*Field)
@@ -22,14 +23,15 @@ type FieldOption func(*Field)
 // NewField creates a new table field
 func NewField(name string, opts ...FieldOption) *Field {
 	s := &Field{
-		Name:       name,
-		Attribute:  utils.Slug(name),
-		Component:  "text",
-		Sortable:   false,
-		Searchable: false,
-		Visibility: false,
-		Visible:    true,
-		Actions:    nil,
+		Name:         name,
+		Attribute:    utils.Slug(name),
+		Component:    "text",
+		Sortable:     false,
+		Searchable:   false,
+		Visibility:   false,
+		HasArraySort: false,
+		Visible:      true,
+		Actions:      nil,
 	}
 	for _, opt := range opts {
 		opt(s)
@@ -98,5 +100,12 @@ func WithVisibility() FieldOption {
 func WithMeta(data map[string]interface{}) FieldOption {
 	return func(s *Field) {
 		s.Meta = data
+	}
+}
+
+// WithArraySort tell the system to sort the results by slice not sql query
+func WithArraySort() FieldOption {
+	return func(s *Field) {
+		s.HasArraySort = true
 	}
 }

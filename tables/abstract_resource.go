@@ -1,6 +1,8 @@
 package tables
 
 import (
+	"cmp"
+	"fmt"
 	"math"
 	"net/http"
 	"slices"
@@ -158,18 +160,51 @@ func (r *AbstractResource) Paginate(resource ITable, model any) (Response, error
 	totalPages := int(math.Ceil(float64(totalRows) / float64(p.Limit)))
 	p.TotalPages = totalPages
 
+	shouldArraySort := false
+	arraySortField := ""
+	for _, field := range r.Fields {
+		if strings.Contains(p.GetSort(), field.Attribute) && field.HasArraySort {
+			arraySortField = field.Attribute
+			shouldArraySort = true
+			if strings.Contains(p.GetSort(), "DESC") {
+				arraySortField = "-" + arraySortField
+			}
+			p.Sort = ""
+		}
+	}
+
 	// add pagination offset and order
 	q.Offset(p.GetOffset()).
 		Limit(p.GetLimit()).
 		Order(p.GetSort())
 
+	var data []map[string]any
+
 	// Get results
-	err := q.Find(&model).Error
+	err := q.Find(&data).Error
+
+	if shouldArraySort {
+		r.sortArray(data, arraySortField)
+	}
+
 	if err == nil {
-		p.Rows = model
+		p.Rows = data
 	}
 
 	return r.ToResponse(p), err
+}
+
+func (r *AbstractResource) sortArray(data []map[string]any, field string) {
+	if field[0:1] == "-" {
+		field = field[1:]
+		slices.SortStableFunc(data, func(a map[string]any, b map[string]any) int {
+			return cmp.Compare(fmt.Sprintf("%v", b[field]), fmt.Sprintf("%v", a[field]))
+		})
+	} else {
+		slices.SortStableFunc(data, func(a map[string]any, b map[string]any) int {
+			return cmp.Compare(fmt.Sprintf("%v", a[field]), fmt.Sprintf("%v", b[field]))
+		})
+	}
 }
 
 // applyFilters applies filter criteria to the database query
