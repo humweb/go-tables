@@ -14,11 +14,6 @@ type SearchTestSuite struct {
 	suite.Suite
 }
 
-//func (suite *SearchTestSuite) SetupSuite() {
-//	// Setup config and ENV variables
-//
-//}
-
 // All methods that begin with "Test" are run as tests within a
 // suite.
 func (suite *SearchTestSuite) TestDefaultRequest() {

@@ -23,24 +23,39 @@ type AbstractResource struct {
 	DefaultPerPage  int
 }
 
-func (r *AbstractResource) ToResponse(paged *Pagination) map[string]interface{} {
+type Response struct {
+	Records    any        `json:"records"`
+	TableProps TableProps `json:"tableProps"`
+	Pagination Pagination `json:"pagination"`
+}
+
+type TableProps struct {
+	Sort    string             `json:"sort"`
+	Page    int                `json:"page"`
+	PerPage int                `json:"perPage"`
+	Columns []*Field           `json:"columns"`
+	Search  map[string]*Search `json:"search"`
+	Filters []*Filter          `json:"filters"`
+}
+
+func (r *AbstractResource) ToResponse(paged *Pagination) Response {
 	r.FlagVisibility()
 
-	return map[string]interface{}{
-		"records": paged.Rows,
-		"tableProps": map[string]interface{}{
-			"sort":    utils.DefaultString(r.Request.URL.Query().Get("sort"), "id"),
-			"page":    paged.Page,
-			"perPage": paged.Limit,
-			"columns": r.Fields,
-			"search":  r.collectFieldSearches(),
-			"filters": r.Filters,
+	return Response{
+		Records: paged.Rows,
+		TableProps: TableProps{
+			Sort:    utils.DefaultString(r.Request.URL.Query().Get("sort"), "id"),
+			Page:    paged.Page,
+			PerPage: paged.Limit,
+			Columns: r.Fields,
+			Search:  r.collectFieldSearches(),
+			Filters: r.Filters,
 		},
-		"pagination": map[string]interface{}{
-			"perPage":      paged.Limit,
-			"page":         paged.Page,
-			"total_pages":  paged.TotalPages,
-			"record_count": paged.TotalRows,
+		Pagination: Pagination{
+			Limit:      paged.Limit,
+			Page:       paged.Page,
+			TotalPages: paged.TotalPages,
+			TotalRows:  paged.TotalRows,
 		},
 	}
 }
@@ -104,7 +119,7 @@ func (r *AbstractResource) ApplySearch(db *gorm.DB, field, value string) {
 // Paginate this is the main function for our resource
 // It applies filters and search criteria and paginates
 // Pagination uses a "Length aware" approach
-func (r *AbstractResource) Paginate(resource ITable, model any) (map[string]interface{}, error) {
+func (r *AbstractResource) Paginate(resource ITable, model any) (Response, error) {
 	r.TableRequest = &TableRequest{}
 
 	var totalRows int64

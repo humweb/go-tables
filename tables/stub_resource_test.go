@@ -36,18 +36,18 @@ func (suite *ResourceTestSuite) TestDefaultRequest() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp["records"].([]UserPrivate)
+	records := resp.Records.([]UserPrivate)
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
 	suite.Equal("baz", records[0].Username)
 
-	pagination := resp["pagination"].(map[string]interface{})
+	pagination := resp.Pagination
 
-	suite.Equal(25, pagination["perPage"])
-	suite.Equal(1, pagination["page"])
-	suite.Equal(1, pagination["total_pages"])
-	suite.Equal(int64(1), pagination["record_count"])
+	suite.Equal(25, pagination.Limit)
+	suite.Equal(1, pagination.Page)
+	suite.Equal(1, pagination.TotalPages)
+	suite.Equal(int64(1), pagination.TotalRows)
 	suite.Nil(mock.ExpectationsWereMet())
 }
 
@@ -74,18 +74,18 @@ func (suite *ResourceTestSuite) TestFilters() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp["records"].([]UserPrivate)
+	records := resp.Records.([]UserPrivate)
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
 	suite.Equal("baz", records[0].Username)
 
-	pagination := resp["pagination"].(map[string]interface{})
+	pagination := resp.Pagination
 
-	suite.Equal(30, pagination["perPage"])
-	suite.Equal(1, pagination["page"])
-	suite.Equal(1, pagination["total_pages"])
-	suite.Equal(int64(1), pagination["record_count"])
+	suite.Equal(30, pagination.Limit)
+	suite.Equal(1, pagination.Page)
+	suite.Equal(1, pagination.TotalPages)
+	suite.Equal(int64(1), pagination.TotalRows)
 	suite.Nil(mock.ExpectationsWereMet())
 }
 
@@ -124,18 +124,18 @@ func (suite *ResourceTestSuite) TestPreloads() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp["records"].([]UserPrivate)
+	records := resp.Records.([]UserPrivate)
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
 	suite.Equal("baz", records[0].Username)
 
-	pagination := resp["pagination"].(map[string]interface{})
+	pagination := resp.Pagination
 
-	suite.Equal(30, pagination["perPage"])
-	suite.Equal(1, pagination["page"])
-	suite.Equal(1, pagination["total_pages"])
-	suite.Equal(int64(1), pagination["record_count"])
+	suite.Equal(30, pagination.Limit)
+	suite.Equal(1, pagination.Page)
+	suite.Equal(1, pagination.TotalPages)
+	suite.Equal(int64(1), pagination.TotalRows)
 	suite.Nil(mock.ExpectationsWereMet())
 }
 
@@ -177,18 +177,18 @@ func (suite *ResourceTestSuite) TestPreloadsWithCondition() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp["records"].([]UserPrivate)
+	records := resp.Records.([]UserPrivate)
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
 	suite.Equal("baz", records[0].Username)
 
-	pagination := resp["pagination"].(map[string]interface{})
+	pagination := resp.Pagination
 
-	suite.Equal(30, pagination["perPage"])
-	suite.Equal(1, pagination["page"])
-	suite.Equal(1, pagination["total_pages"])
-	suite.Equal(int64(1), pagination["record_count"])
+	suite.Equal(30, pagination.Limit)
+	suite.Equal(1, pagination.Page)
+	suite.Equal(1, pagination.TotalPages)
+	suite.Equal(int64(1), pagination.TotalRows)
 	suite.Nil(mock.ExpectationsWereMet())
 }
 
@@ -216,18 +216,18 @@ func (suite *ResourceTestSuite) TestGlobalIntFilter() {
 
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp["records"].([]UserPrivate)
+	records := resp.Records.([]UserPrivate)
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
 	suite.Equal("baz", records[0].Username)
 
-	pagination := resp["pagination"].(map[string]interface{})
+	pagination := resp.Pagination
 
-	suite.Equal(30, pagination["perPage"])
-	suite.Equal(1, pagination["page"])
-	suite.Equal(1, pagination["total_pages"])
-	suite.Equal(int64(1), pagination["record_count"])
+	suite.Equal(30, pagination.Limit)
+	suite.Equal(1, pagination.Page)
+	suite.Equal(1, pagination.TotalPages)
+	suite.Equal(int64(1), pagination.TotalRows)
 	suite.Nil(mock.ExpectationsWereMet())
 }
 
@@ -254,18 +254,18 @@ func (suite *ResourceTestSuite) TestApplySearch() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp["records"].([]UserPrivate)
+	records := resp.Records.([]UserPrivate)
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
 	suite.Equal("baz", records[0].Username)
 
-	pagination := resp["pagination"].(map[string]interface{})
+	pagination := resp.Pagination
 
-	suite.Equal(30, pagination["perPage"])
-	suite.Equal(1, pagination["page"])
-	suite.Equal(1, pagination["total_pages"])
-	suite.Equal(int64(1), pagination["record_count"])
+	suite.Equal(30, pagination.Limit)
+	suite.Equal(1, pagination.Page)
+	suite.Equal(1, pagination.TotalPages)
+	suite.Equal(int64(1), pagination.TotalRows)
 	suite.Nil(mock.ExpectationsWereMet())
 }
 
@@ -320,19 +320,19 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp["records"].([]UserPrivate)
+	records := resp.Records.([]UserPrivate)
 
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
 	suite.Equal("baz", records[0].Username)
 
-	pagination := resp["pagination"].(map[string]interface{})
+	pagination := resp.Pagination
 
-	suite.Equal(30, pagination["perPage"])
-	suite.Equal(1, pagination["page"])
-	suite.Equal(1, pagination["total_pages"])
-	suite.Equal(int64(1), pagination["record_count"])
+	suite.Equal(30, pagination.Limit)
+	suite.Equal(1, pagination.Page)
+	suite.Equal(1, pagination.TotalPages)
+	suite.Equal(int64(1), pagination.TotalRows)
 	suite.Nil(mock.ExpectationsWereMet())
 }
 
@@ -361,19 +361,19 @@ func (suite *ResourceTestSuite) TestDefaultPerPage() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp["records"].([]UserPrivate)
+	records := resp.Records.([]UserPrivate)
 
 	suite.Equal(uint(1), records[0].ID)
 	suite.Equal("foo", records[0].FirstName)
 	suite.Equal("bar", records[0].LastName)
 	suite.Equal("baz", records[0].Username)
 
-	pagination := resp["pagination"].(map[string]interface{})
+	pagination := resp.Pagination
 
-	suite.Equal(100, pagination["perPage"])
-	suite.Equal(1, pagination["page"])
-	suite.Equal(1, pagination["total_pages"])
-	suite.Equal(int64(1), pagination["record_count"])
+	suite.Equal(100, pagination.Limit)
+	suite.Equal(1, pagination.Page)
+	suite.Equal(1, pagination.TotalPages)
+	suite.Equal(int64(1), pagination.TotalRows)
 	suite.Nil(mock.ExpectationsWereMet())
 }
 
