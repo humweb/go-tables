@@ -36,11 +36,12 @@ func (suite *ResourceTestSuite) TestDefaultRequest() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp.Records.([]UserPrivate)
-	suite.Equal(uint(1), records[0].ID)
-	suite.Equal("foo", records[0].FirstName)
-	suite.Equal("bar", records[0].LastName)
-	suite.Equal("baz", records[0].Username)
+	records := resp.Records.([]map[string]any)
+
+	suite.Equal(uint(1), records[0]["id"])
+	suite.Equal("foo", records[0]["first_name"])
+	suite.Equal("bar", records[0]["last_name"])
+	suite.Equal("baz", records[0]["username"])
 
 	pagination := resp.Pagination
 
@@ -74,11 +75,12 @@ func (suite *ResourceTestSuite) TestFilters() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp.Records.([]UserPrivate)
-	suite.Equal(uint(1), records[0].ID)
-	suite.Equal("foo", records[0].FirstName)
-	suite.Equal("bar", records[0].LastName)
-	suite.Equal("baz", records[0].Username)
+	records := resp.Records.([]map[string]any)
+
+	suite.Equal(uint(1), records[0]["id"])
+	suite.Equal("foo", records[0]["first_name"])
+	suite.Equal("bar", records[0]["last_name"])
+	suite.Equal("baz", records[0]["username"])
 
 	pagination := resp.Pagination
 
@@ -91,44 +93,45 @@ func (suite *ResourceTestSuite) TestFilters() {
 
 func (suite *ResourceTestSuite) TestPreloads() {
 	sqlDB, db, mock := testutils.DBMock(suite.T())
+	//mock.MatchExpectationsInOrder(true)
+
 	defer sqlDB.Close()
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30", nil)
 	res := NewUserResource(db, request)
 
-	res.Preloads = []*Preload{
+	res.Preloads = []Preload{
 		{
 			Name: "Client",
 		},
 	}
-	client := sqlmock.
-		NewRows([]string{"id", "title", "description"}).
-		AddRow(1, "cli", "desc")
 	users := sqlmock.
 		NewRows([]string{"id", "client_id", "first_name", "last_name", "username", "password"}).
 		AddRow(1, 1, "foo", "bar", "baz", "passwd")
 
-	expectedCountSQL := regexp.QuoteMeta(`SELECT count(*) FROM "users"`)
-	mock.ExpectQuery(expectedCountSQL).
+	client := sqlmock.
+		NewRows([]string{"id", "title", "description"}).
+		AddRow(1, "cli", "desc")
+
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "users"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-	expectedSQL := regexp.QuoteMeta(`SELECT * FROM "users" ORDER BY id ASC LIMIT $1`)
-	mock.ExpectQuery(expectedSQL).
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" ORDER BY id ASC LIMIT $1`)).
 		WithArgs(30).
 		WillReturnRows(users)
 
-	expectedClientSQL := regexp.QuoteMeta(`SELECT * FROM "clients" WHERE "clients"."id" = $1`)
-	mock.ExpectQuery(expectedClientSQL).
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "clients" WHERE "id" = $1`)).
 		WithArgs(1).
 		WillReturnRows(client)
 
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp.Records.([]UserPrivate)
-	suite.Equal(uint(1), records[0].ID)
-	suite.Equal("foo", records[0].FirstName)
-	suite.Equal("bar", records[0].LastName)
-	suite.Equal("baz", records[0].Username)
+	records := resp.Records.([]map[string]any)
+
+	suite.Equal(uint(1), records[0]["id"])
+	suite.Equal("foo", records[0]["first_name"])
+	suite.Equal("bar", records[0]["last_name"])
+	suite.Equal("baz", records[0]["username"])
 
 	pagination := resp.Pagination
 
@@ -136,7 +139,10 @@ func (suite *ResourceTestSuite) TestPreloads() {
 	suite.Equal(1, pagination.Page)
 	suite.Equal(1, pagination.TotalPages)
 	suite.Equal(int64(1), pagination.TotalRows)
-	suite.Nil(mock.ExpectationsWereMet())
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		suite.T().Errorf("there were unfulfilled expectations: %s", err)
+	}
 }
 
 func (suite *ResourceTestSuite) TestPreloadsWithCondition() {
@@ -145,7 +151,7 @@ func (suite *ResourceTestSuite) TestPreloadsWithCondition() {
 	request, _ := http.NewRequest(http.MethodGet, "/users?perPage=30", nil)
 	res := NewUserResource(db, request)
 
-	res.Preloads = []*Preload{
+	res.Preloads = []Preload{
 		{
 			Name: "Client",
 			Extra: func(db *gorm.DB) *gorm.DB {
@@ -177,11 +183,12 @@ func (suite *ResourceTestSuite) TestPreloadsWithCondition() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp.Records.([]UserPrivate)
-	suite.Equal(uint(1), records[0].ID)
-	suite.Equal("foo", records[0].FirstName)
-	suite.Equal("bar", records[0].LastName)
-	suite.Equal("baz", records[0].Username)
+	records := resp.Records.([]map[string]any)
+
+	suite.Equal(uint(1), records[0]["id"])
+	suite.Equal("foo", records[0]["first_name"])
+	suite.Equal("bar", records[0]["last_name"])
+	suite.Equal("baz", records[0]["username"])
 
 	pagination := resp.Pagination
 
@@ -216,11 +223,12 @@ func (suite *ResourceTestSuite) TestGlobalIntFilter() {
 
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp.Records.([]UserPrivate)
-	suite.Equal(uint(1), records[0].ID)
-	suite.Equal("foo", records[0].FirstName)
-	suite.Equal("bar", records[0].LastName)
-	suite.Equal("baz", records[0].Username)
+	records := resp.Records.([]map[string]any)
+
+	suite.Equal(uint(1), records[0]["id"])
+	suite.Equal("foo", records[0]["first_name"])
+	suite.Equal("bar", records[0]["last_name"])
+	suite.Equal("baz", records[0]["username"])
 
 	pagination := resp.Pagination
 
@@ -254,11 +262,12 @@ func (suite *ResourceTestSuite) TestApplySearch() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp.Records.([]UserPrivate)
-	suite.Equal(uint(1), records[0].ID)
-	suite.Equal("foo", records[0].FirstName)
-	suite.Equal("bar", records[0].LastName)
-	suite.Equal("baz", records[0].Username)
+	records := resp.Records.([]map[string]any)
+
+	suite.Equal(uint(1), records[0]["id"])
+	suite.Equal("foo", records[0]["first_name"])
+	suite.Equal("bar", records[0]["last_name"])
+	suite.Equal("baz", records[0]["username"])
 
 	pagination := resp.Pagination
 
@@ -320,12 +329,12 @@ func (suite *ResourceTestSuite) TestFilterApply() {
 	var aryUsers []UserPrivate
 	resp, _ := res.Paginate(res, aryUsers)
 
-	records := resp.Records.([]UserPrivate)
+	records := resp.Records.([]map[string]any)
 
-	suite.Equal(uint(1), records[0].ID)
-	suite.Equal("foo", records[0].FirstName)
-	suite.Equal("bar", records[0].LastName)
-	suite.Equal("baz", records[0].Username)
+	suite.Equal(uint(1), records[0]["id"])
+	suite.Equal("foo", records[0]["first_name"])
+	suite.Equal("bar", records[0]["last_name"])
+	suite.Equal("baz", records[0]["username"])
 
 	pagination := resp.Pagination
 

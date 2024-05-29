@@ -21,7 +21,7 @@ func (Client) TableName() string {
 type UserPrivate struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	ClientId  int       `json:"client_id"`
-	Client    *Client   `gorm:"foreignkey:ClientId" json:"client,omitempty"`
+	Client    Client    `gorm:"foreignkey:ClientId" json:"client,omitempty"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	Username  string    `json:"username"`

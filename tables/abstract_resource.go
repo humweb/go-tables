@@ -19,7 +19,7 @@ type AbstractResource struct {
 	Fields          []*Field
 	Filters         []*Filter
 	Searches        []*Search
-	Preloads        []*Preload
+	Preloads        []Preload
 	TableRequest    *TableRequest
 	HasGlobalSearch bool
 	DefaultPerPage  int
@@ -141,7 +141,7 @@ func (r *AbstractResource) Paginate(resource ITable, model any) (Response, error
 	}
 
 	// -- Start Query
-	q := r.DB.Model(model)
+	q := r.DB.Debug().Model(model)
 
 	// Apply filters to query
 	r.applySearch(resource, q)
@@ -181,13 +181,14 @@ func (r *AbstractResource) Paginate(resource ITable, model any) (Response, error
 	var data []map[string]any
 
 	// Get results
-	err := q.Find(&data).Error
-
-	if shouldArraySort {
-		r.sortArray(data, arraySortField)
-	}
+	err := q.Debug().Find(&data).Error
 
 	if err == nil {
+		fmt.Println("BEFORE:", data)
+		if shouldArraySort {
+			r.sortArray(data, arraySortField)
+		}
+		fmt.Println("AFTER:", data)
 		p.Rows = data
 	}
 
@@ -233,6 +234,8 @@ func (r *AbstractResource) applySearch(resource ITable, q *gorm.DB) {
 func (r *AbstractResource) eagerLoad(q *gorm.DB) {
 	for _, rel := range r.Preloads {
 		if rel.Extra == nil {
+			fmt.Println("preload", r.Preloads)
+
 			q.Preload(rel.Name)
 		} else {
 			q.Preload(rel.Name, rel.Extra)
