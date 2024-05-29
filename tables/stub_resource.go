@@ -21,7 +21,7 @@ func (Client) TableName() string {
 type UserPrivate struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	ClientId  int       `json:"client_id"`
-	Client    *Client   `gorm:"foreignkey:ClientId" json:"client,omitempty"`
+	Client    Client    `gorm:"foreignkey:ClientId" json:"client,omitempty"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	Username  string    `json:"username"`
@@ -56,7 +56,7 @@ func NewUserResource(db *gorm.DB, req *http.Request) *UserResource {
 func (u *UserResource) GetFields() []*Field {
 	return []*Field{
 		NewField("ID", WithSortable()),
-		NewField("First name", WithSortable(), WithVisibility()),
+		NewField("First name", WithSortable(), WithVisibility(), WithArraySort()),
 		NewField("Last name", WithSortable(), WithSearchable()),
 		NewField("Email", WithSortable()),
 		NewField("Username", WithSortable()),

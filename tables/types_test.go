@@ -13,5 +13,5 @@ func TestPaginationDefaults(t *testing.T) {
 	is.Equal(10, p.GetLimit())
 	is.Equal(0, p.GetOffset())
 	is.Equal(1, p.GetPage())
-	is.Equal("id desc", p.GetSort())
+	is.Equal("id DESC", p.GetSort())
 }

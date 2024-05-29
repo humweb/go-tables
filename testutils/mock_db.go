@@ -17,9 +17,7 @@ func DBMock(t *testing.T) (*sql.DB, *gorm.DB, sqlmock.Sqlmock) {
 		log.Fatalf("An error '%s' was not expected when opening a stub database connection", err)
 	}
 	gormdb, err := gorm.Open(postgres.New(postgres.Config{
-		Conn:                 sqldb,
-		DriverName:           "postgres",
-		PreferSimpleProtocol: true,
+		Conn: sqldb,
 	}), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("An error '%s' was not expected when opening gorm database", err)
