@@ -1,8 +1,6 @@
 package tables
 
 import (
-	"cmp"
-	"fmt"
 	"math"
 	"net/http"
 	"slices"
@@ -25,11 +23,7 @@ type AbstractResource struct {
 	DefaultPerPage  int
 }
 
-type Response struct {
-	Records    any        `json:"records"`
-	TableProps TableProps `json:"tableProps"`
-	Pagination Pagination `json:"pagination"`
-}
+type Response map[string]any
 
 type TableProps struct {
 	Sort    string             `json:"sort"`
@@ -44,8 +38,8 @@ func (r *AbstractResource) ToResponse(paged *Pagination) Response {
 	r.FlagVisibility()
 
 	return Response{
-		Records: paged.Rows,
-		TableProps: TableProps{
+		"records": paged.Rows,
+		"tableProps": TableProps{
 			Sort:    utils.DefaultString(r.Request.URL.Query().Get("sort"), "id"),
 			Page:    paged.Page,
 			PerPage: paged.Limit,
@@ -53,7 +47,7 @@ func (r *AbstractResource) ToResponse(paged *Pagination) Response {
 			Search:  r.collectFieldSearches(),
 			Filters: r.Filters,
 		},
-		Pagination: Pagination{
+		"pagination": Pagination{
 			Limit:      paged.Limit,
 			Page:       paged.Page,
 			TotalPages: paged.TotalPages,
@@ -141,7 +135,7 @@ func (r *AbstractResource) Paginate(resource ITable, model any) (Response, error
 	}
 
 	// -- Start Query
-	q := r.DB.Debug().Model(model)
+	q := r.DB.Model(model)
 
 	// Apply filters to query
 	r.applySearch(resource, q)
@@ -153,6 +147,8 @@ func (r *AbstractResource) Paginate(resource ITable, model any) (Response, error
 	q.Count(&totalRows)
 	p.TotalRows = totalRows
 
+	//q = r.DB.Model(model)
+
 	// Eager load relationships
 	r.eagerLoad(q)
 
@@ -160,52 +156,18 @@ func (r *AbstractResource) Paginate(resource ITable, model any) (Response, error
 	totalPages := int(math.Ceil(float64(totalRows) / float64(p.Limit)))
 	p.TotalPages = totalPages
 
-	shouldArraySort := false
-	arraySortField := ""
-	for _, field := range r.Fields {
-		if strings.Contains(p.GetSort(), field.Attribute) && field.HasArraySort {
-			arraySortField = field.Attribute
-			shouldArraySort = true
-			if strings.Contains(p.GetSort(), "DESC") {
-				arraySortField = "-" + arraySortField
-			}
-			p.Sort = ""
-		}
-	}
-
 	// add pagination offset and order
 	q.Offset(p.GetOffset()).
 		Limit(p.GetLimit()).
 		Order(p.GetSort())
 
-	var data []map[string]any
-
 	// Get results
-	err := q.Debug().Find(&data).Error
-
+	err := q.Find(&model).Error
 	if err == nil {
-		fmt.Println("BEFORE:", data)
-		if shouldArraySort {
-			r.sortArray(data, arraySortField)
-		}
-		fmt.Println("AFTER:", data)
-		p.Rows = data
+		p.Rows = model
 	}
 
 	return r.ToResponse(p), err
-}
-
-func (r *AbstractResource) sortArray(data []map[string]any, field string) {
-	if field[0:1] == "-" {
-		field = field[1:]
-		slices.SortStableFunc(data, func(a map[string]any, b map[string]any) int {
-			return cmp.Compare(fmt.Sprintf("%v", b[field]), fmt.Sprintf("%v", a[field]))
-		})
-	} else {
-		slices.SortStableFunc(data, func(a map[string]any, b map[string]any) int {
-			return cmp.Compare(fmt.Sprintf("%v", a[field]), fmt.Sprintf("%v", b[field]))
-		})
-	}
 }
 
 // applyFilters applies filter criteria to the database query
@@ -234,8 +196,6 @@ func (r *AbstractResource) applySearch(resource ITable, q *gorm.DB) {
 func (r *AbstractResource) eagerLoad(q *gorm.DB) {
 	for _, rel := range r.Preloads {
 		if rel.Extra == nil {
-			fmt.Println("preload", r.Preloads)
-
 			q.Preload(rel.Name)
 		} else {
 			q.Preload(rel.Name, rel.Extra)
